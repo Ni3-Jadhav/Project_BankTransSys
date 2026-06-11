@@ -1,5 +1,6 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const emailService = require("../services/email.service");
 
 /**
  * - User register controller
@@ -49,6 +50,14 @@ async function userRegisterController(req, res) {
         email: userCreate.email,
       },
     });
+
+    /**
+     * - Send email on registration
+     */
+    await emailService.sendEmailOnRegistration(
+      userCreate.email,
+      userCreate.name,
+    );
   } catch (error) {
     if (error.name === "ValidationError") {
       return res.status(400).json({
