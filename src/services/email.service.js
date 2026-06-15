@@ -116,6 +116,179 @@ async function sendEmailOnRegistration(userEmail, userName) {
 
   await sendEmail(userEmail, subject, text, html);
 }
+
+async function sendEmailOnSuccessfullTransaction(
+  userEmail,
+  userName,
+  amount,
+  toAccount,
+  fromAccount,
+) {
+  const subject = "Transaction Successful - BankTransSys";
+
+  const text = `
+                  Dear ${userName},
+
+                  Your transaction has been completed successfully.
+
+                  Transaction Details:
+                  - Amount: ₹${amount}
+                  - From Account: ${fromAccount}
+                  - To Account: ${toAccount}
+                  - Status: Successful
+
+                  Thank you for using BankTransSys.
+
+                  If you did not authorize this transaction, please contact support immediately.
+
+                  Regards,
+                  BankTransSys Team
+               `;
+
+  const html = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                  
+                  <div style="background-color: #16a34a; color: white; padding: 20px; text-align: center;">
+                    <h2 style="margin:0;">Transaction Successful</h2>
+                  </div>
+
+                  <div style="padding: 25px;">
+                    <p>Hello <strong>${userName}</strong>,</p>
+
+                    <p>Your transaction has been completed successfully.</p>
+
+                    <table style="width:100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="padding:8px;"><strong>Amount</strong></td>
+                        <td style="padding:8px;">₹${amount}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:8px;"><strong>From Account</strong></td>
+                        <td style="padding:8px;">${fromAccount}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:8px;"><strong>To Account</strong></td>
+                        <td style="padding:8px;">${toAccount}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:8px;"><strong>Status</strong></td>
+                        <td style="padding:8px; color: green;"><strong>Successful</strong></td>
+                      </tr>
+                    </table>
+
+                    <p style="margin-top:20px;">
+                      If you did not authorize this transaction, please contact support immediately.
+                    </p>
+
+                    <p>
+                      Thank you for using <strong>BankTransSys</strong>.
+                    </p>
+                  </div>
+
+                  <div style="background:#f3f4f6; padding:15px; text-align:center; font-size:12px; color:#6b7280;">
+                    © ${new Date().getFullYear()} BankTransSys. All rights reserved.
+                  </div>
+
+                </div>
+              `;
+
+  await sendEmail(userEmail, subject, text, html);
+}
+
+async function sendEmailOnFailedTransaction(
+  userEmail,
+  userName,
+  amount,
+  toAccount,
+  fromAccount,
+) {
+  const subject = "Transaction Failed - BankTransSys";
+
+  const text = `
+                  Dear ${userName},
+
+                  We were unable to process your transaction.
+
+                  Transaction Details:
+                  - Amount: ₹${amount}
+                  - From Account: ${fromAccount}
+                  - To Account: ${toAccount}
+                  - Status: Failed
+
+                  Possible reasons:
+                  - Insufficient balance
+                  - Invalid account details
+                  - Temporary banking service issue
+
+                  Please verify the transaction details and try again.
+
+                  Regards,
+                  BankTransSys Team
+          `;
+
+  const html = `
+                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                    
+                    <div style="background-color: #dc2626; color: white; padding: 20px; text-align: center;">
+                      <h2 style="margin:0;">Transaction Failed</h2>
+                    </div>
+
+                    <div style="padding: 25px;">
+                      <p>Hello <strong>${userName}</strong>,</p>
+
+                      <p>
+                        Unfortunately, we were unable to process your transaction.
+                      </p>
+
+                      <table style="width:100%; border-collapse: collapse;">
+                        <tr>
+                          <td style="padding:8px;"><strong>Amount</strong></td>
+                          <td style="padding:8px;">₹${amount}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px;"><strong>From Account</strong></td>
+                          <td style="padding:8px;">${fromAccount}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px;"><strong>To Account</strong></td>
+                          <td style="padding:8px;">${toAccount}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px;"><strong>Status</strong></td>
+                          <td style="padding:8px; color: red;"><strong>Failed</strong></td>
+                        </tr>
+                      </table>
+
+                      <div style="background:#fef2f2; border-left:4px solid #dc2626; padding:12px; margin-top:20px;">
+                        <strong>Possible Reasons:</strong>
+                        <ul>
+                          <li>Insufficient account balance</li>
+                          <li>Invalid recipient account details</li>
+                          <li>Temporary banking service issue</li>
+                        </ul>
+                      </div>
+
+                      <p style="margin-top:20px;">
+                        Please verify the transaction details and try again.
+                      </p>
+
+                      <p>
+                        If the issue persists, contact our support team.
+                      </p>
+                    </div>
+
+                    <div style="background:#f3f4f6; padding:15px; text-align:center; font-size:12px; color:#6b7280;">
+                      © ${new Date().getFullYear()} BankTransSys. All rights reserved.
+                    </div>
+
+                  </div>
+          `;
+
+  await sendEmail(userEmail, subject, text, html);
+}
+
 module.exports = {
   sendEmailOnRegistration,
+  sendEmailOnSuccessfullTransaction,
+  sendEmailOnFailedTransaction,
 };
