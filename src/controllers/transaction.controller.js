@@ -4,6 +4,8 @@ const accountModel = require("../models/account.model");
 
 const emailService = require("../services/email.service");
 
+const mongoose = require("mongoose");
+
 /**
  * * Transaction controller
  * * Create new transaction
@@ -108,4 +110,155 @@ async function createTransaction(req, res) {
       message: `Insufficient balance. Current balance is ${senderBalance}. Requested amount is ${amount}`,
     });
   }
+
+  /**
+   * * This all steps are dependent on each other, if 1 is missing then all steps also no
+   * * need to complete or go further. So we use mongoose session for this.
+   * - Create transaction with PENDING status
+   * - Create DEBIT ledger entry
+   * - Create CREDIT ledger entry
+   * - Mark transaction as COMPLETED
+   */
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  const newTransaction = await transactionModel.create(
+    {
+      fromAccount,
+      toAccount,
+      amount,
+      idempotencyKey,
+      status: "PENDING",
+    },
+    { session },
+  );
+
+  const debitLedgerEntry = await ledgerModel.create(
+    {
+      account: fromAccount,
+      amount: amount,
+      transaction: newTransaction._id,
+      transactionType: "DEBIT",
+    },
+    { session },
+  );
+
+  const creditLedgerEntry = await ledgerModel.create(
+    {
+      account: toAccount,
+      amount: amount,
+      transaction: newTransaction._id,
+      transactionType: "CREDIT",
+    },
+    { session },
+  );
+
+  newTransaction.status = "COMPLETED";
+  await newTransaction.save({ session });
+
+  /**
+   * - Commit MongoDB session
+   */
+
+  await session.commitTransaction();
+  session.endSession();
+
+  return res.status(201).json({
+    message: "Transaction Completed successfully",
+    transaction: newTransaction,
+  });
+
+  /**
+   * - Send email notification
+   */
+
+  await emailService.sendEmailOnSuccessfullTransaction(
+    req.user.email,
+    req.user.name,
+    amount,
+    toAccount,
+    fromAccount,
+  );
 }
+
+async function createInitialSystemTransaction(req, res) {
+  const { toAccount, amount, idempotencyKey } = req.body;
+
+  if (!toAccount || !amount || !idempotencyKey) {
+    return res.status(400).json({
+      message:
+        "toAccount, amount and idempotencyKey all are required for transaction",
+    });
+  }
+  const fromUserAccount = await accountModel.findOne({
+    // systemUser: true,
+    user: req.user._id,
+  });
+
+  const toUserAccount = await accountModel.findOne({
+    _id: toAccount,
+  });
+
+  if (!toUserAccount) {
+    return res.status(400).json({
+      meassage: "Invalid toAccount",
+    });
+  }
+
+  if (!fromUserAccount) {
+    return res.status(400).json({
+      meassage: "System user account not found",
+    });
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  const initialTransaction = await transactionModel.create(
+    {
+      fromAccount: fromUserAccount._id,
+      toAccount,
+      amount,
+      idempotencyKey,
+      status: "PENDING",
+    },
+    { session },
+  );
+
+  const debitLedgerEntry = await ledgerModel.create(
+    {
+      account: fromUserAccount._id,
+      amount: amount,
+      transaction: initialTransaction._id,
+      transactionType: "DEBIT",
+    },
+    { session },
+  );
+
+  const creditLedgerEntry = await ledgerModel.create(
+    {
+      account: toAccount,
+      amount: amount,
+      transaction: initialTransaction._id,
+      transactionType: "CREDIT",
+    },
+    { session },
+  );
+
+  initialTransaction.status = "COMPLETED";
+  await initialTransaction.save({ session });
+
+  await session.commitTransaction();
+  session.endSession();
+
+  return res.status(201).json({
+    message: "Transaction Completed successfully",
+    transaction: initialTransaction,
+  });
+}
+
+module.exports = {
+  createTransaction,
+  createInitialSystemTransaction,
+};
