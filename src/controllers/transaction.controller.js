@@ -273,13 +273,18 @@ async function createInitialSystemTransaction(req, res) {
       });
     }
     const senderAccount = await accountModel.findOne({
-      // systemUser: true,
-      user: req.user.userId,
+      userId: req.user._id,
     });
 
     if (!senderAccount) {
       return res.status(400).json({
         message: "System user account not found",
+      });
+    }
+
+    if (senderAccount._id === toAccount) {
+      return res.status(400).json({
+        message: "System account and target account must be different.",
       });
     }
 
