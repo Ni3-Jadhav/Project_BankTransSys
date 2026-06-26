@@ -20,6 +20,7 @@ const accountSchema = new mongoose.Schema(
     currency: {
       type: String,
       required: [true, "Currency is required for account creation"],
+      enum: ["INR", "USD", "EUR"],
       default: "INR",
       trim: true,
       uppercase: true,
@@ -30,7 +31,7 @@ const accountSchema = new mongoose.Schema(
   },
 );
 
-accountSchema.index({ userId: 1 }, { status: 1 });
+accountSchema.index({ userId: 1, status: 1 });
 
 accountSchema.methods.getBalance = async function () {
   const balanceData = await ledgerModel.aggregate([
@@ -40,12 +41,12 @@ accountSchema.methods.getBalance = async function () {
         _id: null,
         totalDebit: {
           $sum: {
-            $cond: [{ $eq: ["$type", "DEBIT"] }, "$amount", 0],
+            $cond: [{ $eq: ["$transactionType", "DEBIT"] }, "$amount", 0],
           },
         },
         totalCredit: {
           $sum: {
-            $cond: [{ $eq: ["$type", "CREDIT"] }, "$amount", 0],
+            $cond: [{ $eq: ["$transactionType", "CREDIT"] }, "$amount", 0],
           },
         },
       },
