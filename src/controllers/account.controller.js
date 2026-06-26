@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const accountModel = require("../models/account.model");
 
 /**
@@ -21,11 +22,10 @@ async function createAccountController(req, res) {
       newAccount,
     });
   } catch (error) {
+    console.error("Failed to create New Account", error.message);
     return res.status(500).json({
       message: "Failed to create account",
-      error: error.message,
     });
-    console.error("Failed to create New Account", error.message);
   }
 }
 
@@ -46,7 +46,6 @@ async function getAccountController(req, res) {
     console.error("Failed to fetch login user accounts", error.message);
     return res.status(500).json({
       message: "Failed to fetch login user accounts",
-      error: error.message,
     });
   }
 }
@@ -58,7 +57,11 @@ async function getAccountController(req, res) {
 
 async function getUserAccountBalanceController(req, res) {
   const { accountId } = req.params;
-
+  if (!mongoose.Types.ObjectId.isValid(accountId)) {
+    return res.status(400).json({
+      message: "Invalid Account ID",
+    });
+  }
   try {
     const account = await accountModel.findOne({
       _id: accountId,
@@ -71,6 +74,11 @@ async function getUserAccountBalanceController(req, res) {
       });
     }
 
+    if (account.status !== "ACTIVE") {
+      return res.status(403).json({
+        message: `Account is ${account.status}`,
+      });
+    }
     const balance = await account.getBalance();
     return res.status(200).json({
       accountId: account._id,
@@ -80,7 +88,6 @@ async function getUserAccountBalanceController(req, res) {
     console.error("Failed to fetch user account balance", error.message);
     return res.status(500).json({
       message: "Failed to fetch user account balance",
-      error: error.message,
     });
   }
 }

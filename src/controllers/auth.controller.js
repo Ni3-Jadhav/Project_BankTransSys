@@ -8,9 +8,8 @@ const emailService = require("../services/email.service");
  */
 
 async function userRegisterController(req, res) {
+  const { name, email, password } = req.body;
   try {
-    const { name, email, password } = req.body;
-
     if (!name || !email || !password) {
       return res.status(400).json({
         status: "failed",
@@ -81,8 +80,8 @@ async function userRegisterController(req, res) {
  */
 
 async function userLoginController(req, res) {
+  const { email, password } = req.body;
   try {
-    const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({
         status: "failed",
@@ -123,6 +122,8 @@ async function userLoginController(req, res) {
         email: user.email,
       },
     });
+
+    await emailService.sendEmailOnLogin(user.email, user.name);
   } catch (error) {
     res.status(500).json({
       status: "failed",
