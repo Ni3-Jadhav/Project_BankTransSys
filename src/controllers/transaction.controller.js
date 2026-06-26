@@ -53,6 +53,7 @@ async function createTransaction(req, res) {
     const [senderAccount, receiverAccount] = await Promise.all([
       accountModel.findOne({
         _id: fromAccount,
+        userId: req.user._id,
       }),
       accountModel.findOne({
         _id: toAccount,
@@ -61,7 +62,7 @@ async function createTransaction(req, res) {
 
     if (!senderAccount || !receiverAccount) {
       return res.status(400).json({
-        message: "Invalid fromAccount and toAccount",
+        message: "Invalid fromAccount or toAccount",
       });
     }
 
@@ -166,6 +167,7 @@ async function createTransaction(req, res) {
       });
 
       await newTransaction.save({ session });
+
       const debitLedgerEntry = new ledgerModel({
         account: fromAccount,
         amount: amount,

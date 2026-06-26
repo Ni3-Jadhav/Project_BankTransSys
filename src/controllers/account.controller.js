@@ -15,9 +15,20 @@ async function createAccountController(req, res) {
   const user = req.user;
 
   try {
+    const accountCount = await accountModel.countDocuments({
+      userId: user._id,
+    });
+
+    if (accountCount >= 5) {
+      return res.status(400).json({
+        message: "You can create a maximum of 5 accounts.",
+      });
+    }
+
     const newAccount = await accountModel.create({
       userId: user._id,
     });
+
     return res.status(201).json({
       newAccount,
     });
