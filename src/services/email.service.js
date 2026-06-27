@@ -123,6 +123,7 @@ async function sendEmailOnSuccessfullTransaction(
   amount,
   toAccount,
   fromAccount,
+  updatedBalance,
 ) {
   const subject = "Transaction Successful - BankTransSys";
 
@@ -135,6 +136,7 @@ async function sendEmailOnSuccessfullTransaction(
                   - Amount: ₹${amount}
                   - From Account: ${fromAccount}
                   - To Account: ${toAccount}
+                  - Updated Balance: ₹${updatedBalance}
                   - Status: Successful
 
                   Thank you for using BankTransSys.
@@ -169,6 +171,10 @@ async function sendEmailOnSuccessfullTransaction(
                       <tr>
                         <td style="padding:8px;"><strong>To Account</strong></td>
                         <td style="padding:8px;">${toAccount}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:8px;"><strong>Updated Balance</strong></td>
+                        <td style="padding:8px;">₹${updatedBalance}</td>
                       </tr>
                       <tr>
                         <td style="padding:8px;"><strong>Status</strong></td>
