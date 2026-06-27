@@ -208,12 +208,15 @@ async function createTransaction(req, res) {
      * - Send email notification
      */
     try {
+      const updatedBalance = await senderAccount.getBalance();
+
       await emailService.sendEmailOnSuccessfullTransaction(
         req.user.email,
         req.user.name,
         amount,
         toAccount,
         fromAccount,
+        updatedBalance,
       );
     } catch (error) {
       console.error("Email Error", error);
@@ -348,12 +351,15 @@ async function createInitialSystemTransaction(req, res) {
     }
 
     try {
+      const updatedBalance = await senderAccount.getBalance();
+
       await emailService.sendEmailOnSuccessfullTransaction(
         req.user.email,
         req.user.name,
         amount,
         toAccount,
         senderAccount._id,
+        updatedBalance,
       );
     } catch (error) {
       console.error("Email Error", error);
@@ -372,6 +378,7 @@ async function createInitialSystemTransaction(req, res) {
           req.user.name,
           amount,
           toAccount,
+          "Sys_user",
         );
       } catch (error) {
         console.error("Email error", error);

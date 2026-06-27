@@ -41,4 +41,26 @@ router.get(
   accountController.getUserAccountBalanceController,
 );
 
+/**
+ * - Get Api - api/accounts/sysBal/:accountId
+ * - Get user all type account balance by System user
+ */
+
+router.get(
+  "/sysBal/:accountId",
+  authMiddleware.authSystemUserMiddleware,
+  accountController.getUserAccountBalBySysUser,
+);
+
+/**
+ * - Put Api -  api/accounts/status/:accountId
+ * - Update account status only by system user
+ */
+
+router.put(
+  "/status/:accountId",
+  authMiddleware.authSystemUserMiddleware,
+  accountController.updateAccountStatusController,
+);
+
 module.exports = router;
