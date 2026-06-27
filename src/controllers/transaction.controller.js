@@ -53,6 +53,7 @@ async function createTransaction(req, res) {
     const [senderAccount, receiverAccount] = await Promise.all([
       accountModel.findOne({
         _id: fromAccount,
+        userId: req.user._id,
       }),
       accountModel.findOne({
         _id: toAccount,
@@ -61,7 +62,7 @@ async function createTransaction(req, res) {
 
     if (!senderAccount || !receiverAccount) {
       return res.status(400).json({
-        message: "Invalid fromAccount and toAccount",
+        message: "Invalid fromAccount or toAccount",
       });
     }
 
@@ -166,6 +167,7 @@ async function createTransaction(req, res) {
       });
 
       await newTransaction.save({ session });
+
       const debitLedgerEntry = new ledgerModel({
         account: fromAccount,
         amount: amount,
@@ -273,13 +275,18 @@ async function createInitialSystemTransaction(req, res) {
       });
     }
     const senderAccount = await accountModel.findOne({
-      // systemUser: true,
-      user: req.user.userId,
+      userId: req.user._id,
     });
 
     if (!senderAccount) {
       return res.status(400).json({
         message: "System user account not found",
+      });
+    }
+
+    if (senderAccount._id === toAccount) {
+      return res.status(400).json({
+        message: "System account and target account must be different.",
       });
     }
 

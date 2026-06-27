@@ -287,8 +287,178 @@ async function sendEmailOnFailedTransaction(
   await sendEmail(userEmail, subject, text, html);
 }
 
+async function sendEmailOnLogin(userEmail, userName) {
+  const subject = "Security Alert: Login Successful - BankTransSys";
+
+  const text = `
+                  Dear ${userName},
+
+                  Your BankTransSys account was accessed successfully.
+
+                  If this login was performed by you, no action is required.
+
+                  If you do not recognize this activity, please reset your password immediately and contact support.
+
+                  Thank you,
+                  BankTransSys Security Team
+               `;
+
+  const html = `
+                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+                    <div style="background-color: #2563eb; color: white; padding: 20px; text-align: center;">
+                      <h2>Login Successful</h2>
+                    </div>
+
+                    <div style="padding: 25px;">
+                      <p>Hello <strong>${userName}</strong>,</p>
+
+                      <p>Your BankTransSys account was accessed successfully.</p>
+
+                      <div style="background: #eff6ff; padding: 15px; border-left: 4px solid #2563eb;">
+                        <strong>Status:</strong> Login Successful
+                      </div>
+
+                      <p style="margin-top:20px;">
+                        If this login was performed by you, no action is required.
+                      </p>
+
+                      <p>
+                        If you do not recognize this activity, please reset your password immediately and contact support.
+                      </p>
+
+                      <p>
+                        Regards,<br>
+                        <strong>BankTransSys Security Team</strong>
+                      </p>
+                    </div>
+                  </div>
+                `;
+
+  await sendEmail(userEmail, subject, text, html);
+}
+
+async function sendEmailOnFailedLogin(userEmail, userName) {
+  const subject = "Security Alert: Failed Login Attempt - BankTransSys";
+
+  const text = `
+                  Dear ${userName},
+
+                  We detected a failed login attempt on your BankTransSys account.
+
+                  If this was you, please verify your credentials and try again.
+
+                  If this was not you, someone may be attempting to access your account.
+
+                  We recommend:
+                  - Resetting your password.
+                  - Using a strong password.
+                  - Contacting support if suspicious activity continues.
+
+                  Regards,
+                  BankTransSys Security Team
+                `;
+
+  const html = `
+                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+                    <div style="background-color: #dc2626; color: white; padding: 20px; text-align: center;">
+                      <h2>Failed Login Attempt Detected</h2>
+                    </div>
+
+                    <div style="padding: 25px;">
+                      <p>Hello <strong>${userName}</strong>,</p>
+
+                      <p>We detected a failed login attempt on your account.</p>
+
+                      <div style="background: #fef2f2; padding: 15px; border-left: 4px solid #dc2626;">
+                        <strong>Status:</strong> Failed Login Attempt
+                      </div>
+
+                      <p style="margin-top:20px;">
+                        If this was you, please verify your credentials and try again.
+                      </p>
+
+                      <p>
+                        If this was not you, someone may be attempting to access your account.
+                      </p>
+
+                      <ul>
+                        <li>Reset your password.</li>
+                        <li>Use a strong password.</li>
+                        <li>Contact support if suspicious activity continues.</li>
+                      </ul>
+
+                      <p>
+                        Regards,<br>
+                        <strong>BankTransSys Security Team</strong>
+                      </p>
+                    </div>
+                  </div>
+                `;
+
+  await sendEmail(userEmail, subject, text, html);
+}
+
+async function sendEmailOnLogout(userEmail, userName) {
+  const subject = "Logout Confirmation - BankTransSys";
+
+  const text = `
+                  Dear ${userName},
+
+                  You have successfully logged out of your BankTransSys account.
+
+                  If you initiated this logout, no further action is required.
+
+                  If you did not perform this action, please log in immediately and change your password.
+
+                  Thank you for using BankTransSys.
+
+                  Regards,
+                  BankTransSys Team
+                `;
+
+  const html = `
+                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+                    <div style="background-color: #6b7280; color: white; padding: 20px; text-align: center;">
+                      <h2>Logout Confirmation</h2>
+                    </div>
+
+                    <div style="padding: 25px;">
+                      <p>Hello <strong>${userName}</strong>,</p>
+
+                      <p>You have successfully logged out of your BankTransSys account.</p>
+
+                      <div style="background: #f3f4f6; padding: 15px; border-left: 4px solid #6b7280;">
+                        <strong>Status:</strong> Logged Out Successfully
+                      </div>
+
+                      <p style="margin-top:20px;">
+                        If you initiated this logout, no further action is required.
+                      </p>
+
+                      <p>
+                        If you did not perform this action, please log in immediately and update your password.
+                      </p>
+
+                      <p>
+                        Thank you for using BankTransSys.
+                      </p>
+
+                      <p>
+                        Regards,<br>
+                        <strong>BankTransSys Team</strong>
+                      </p>
+                    </div>
+                  </div>
+                `;
+
+  await sendEmail(userEmail, subject, text, html);
+}
+
 module.exports = {
   sendEmailOnRegistration,
   sendEmailOnSuccessfullTransaction,
   sendEmailOnFailedTransaction,
+  sendEmailOnLogin,
+  sendEmailOnFailedLogin,
+  sendEmailOnLogout,
 };

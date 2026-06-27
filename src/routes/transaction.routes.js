@@ -7,12 +7,12 @@ const authMiddleware = require("../middleware/auth.middleware");
 const transactionController = require("../controllers/transaction.controller");
 
 /**
- * * Create new transaction
- * * - Transaction POST API - api/transaction/new
+ * * Create transaction
+ * * - Transaction POST API - api/transaction
  */
 
 router.post(
-  "/new",
+  "/",
   authMiddleware.authMiddleware,
   transactionController.createTransaction,
 );

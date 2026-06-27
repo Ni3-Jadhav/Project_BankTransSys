@@ -1,16 +1,34 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const emailService = require("../services/email.service");
+const blacklistToken = require("../models/blacklistToken.model");
 
+/**
+ * - JWT token generation function
+ */
+
+function generateToken(userId) {
+  return jwt.sign({ userID: userId }, process.env.JWT_SECRET, {
+    expiresIn: "3d",
+  });
+}
+
+function setAuthCookie(res, token) {
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+    maxAge: 3 * 24 * 60 * 60 * 1000,
+  });
+}
 /**
  * - User register controller
  * - Post api - api/auth/register
  */
 
 async function userRegisterController(req, res) {
+  const { name, email, password } = req.body;
   try {
-    const { name, email, password } = req.body;
-
     if (!name || !email || !password) {
       return res.status(400).json({
         status: "failed",
@@ -35,11 +53,9 @@ async function userRegisterController(req, res) {
       password,
     });
 
-    const token = jwt.sign({ userID: userCreate._id }, process.env.JWT_SECRET, {
-      expiresIn: "3d",
-    });
+    const token = generateToken(userCreate._id);
 
-    res.cookie("token", token);
+    setAuthCookie(res, token);
 
     res.status(201).json({
       message: "User Created Successfully",
@@ -54,11 +70,17 @@ async function userRegisterController(req, res) {
     /**
      * - Send email on registration
      */
-    await emailService.sendEmailOnRegistration(
-      userCreate.email,
-      userCreate.name,
-    );
+
+    try {
+      await emailService.sendEmailOnRegistration(
+        userCreate.email,
+        userCreate.name,
+      );
+    } catch (error) {
+      console.error("Error in email service", error.message);
+    }
   } catch (error) {
+    console.error(error);
     if (error.name === "ValidationError") {
       return res.status(400).json({
         status: "failed",
@@ -81,8 +103,8 @@ async function userRegisterController(req, res) {
  */
 
 async function userLoginController(req, res) {
+  const { email, password } = req.body;
   try {
-    const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({
         status: "failed",
@@ -95,7 +117,7 @@ async function userLoginController(req, res) {
     if (!user) {
       return res.status(401).json({
         status: "failed",
-        message: "Invalid Email or Passwword",
+        message: "Invalid Email or password",
       });
     }
 
@@ -104,15 +126,13 @@ async function userLoginController(req, res) {
     if (!isPasswordMatch) {
       return res.status(401).json({
         status: "failed",
-        message: "Invalid Email or Passwword",
+        message: "Invalid Email or password",
       });
     }
 
-    const token = jwt.sign({ userID: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "3d",
-    });
+    const token = generateToken(user._id);
 
-    res.cookie("token", token);
+    setAuthCookie(res, token);
 
     res.status(200).json({
       message: "User Logged In Successfully",
@@ -123,7 +143,53 @@ async function userLoginController(req, res) {
         email: user.email,
       },
     });
+
+    try {
+      await emailService.sendEmailOnLogin(user.email, user.name);
+    } catch (error) {
+      console.error("Error in email service", error.message);
+    }
   } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: "failed",
+      message: "Internal Server Error",
+    });
+  }
+}
+
+/**
+ * - Logout Api with Token Blacklist
+ * - Logout Api - api/auth/logout
+ */
+
+async function userLogoutController(req, res) {
+  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(400).json({
+      message: "No active session found",
+    });
+  }
+
+  try {
+    await blacklistToken.create({
+      token: token,
+    });
+
+    res.clearCookie("token");
+
+    res.status(200).json({
+      message: "User logged out successfully",
+    });
+
+    try {
+      await emailService.sendEmailOnLogout(req.user.email, req.user.name);
+    } catch (error) {
+      console.error("Error in email service", error.message);
+    }
+  } catch (error) {
+    console.error(error);
     res.status(500).json({
       status: "failed",
       message: "Internal Server Error",
@@ -134,4 +200,5 @@ async function userLoginController(req, res) {
 module.exports = {
   userRegisterController,
   userLoginController,
+  userLogoutController,
 };
