@@ -1,18 +1,21 @@
 # Bank Transaction System
 
-A secure backend application built with Node.js, Express.js, and MongoDB for managing user authentication, bank accounts, and transaction operations.
+A compact and secure backend project for managing basic banking operations such as user authentication, account creation, deposits, withdrawals, and fund transfers. It is built to demonstrate how a real-world transaction system can be structured using Node.js, Express.js, and MongoDB.
 
 ## Live Demo
 - Website: https://bank-ledger-h449.onrender.com/
 
-## Features
+## What This Project Does
+This application provides a simple banking workflow where users can register, sign in, manage their accounts, and perform financial transactions. Each action is handled through RESTful APIs and stored in a MongoDB database for tracking and accountability.
+
+## Key Features
 - User registration and login
-- JWT-based authentication
-- Account management
-- Deposit, withdrawal, and transfer transactions
-- Transaction ledger tracking
-- Secure logout with token blacklisting
-- Email notifications for account-related actions
+- Secure JWT-based authentication
+- Account creation and management
+- Deposit, withdrawal, and transfer operations
+- Transaction ledger history
+- Logout with token blacklisting for added security
+- Email notifications for important actions
 
 ## Tech Stack
 - Node.js
@@ -25,11 +28,11 @@ A secure backend application built with Node.js, Express.js, and MongoDB for man
 
 ## Project Structure
 - src/app.js - Main Express application setup
-- src/routes/ - Route definitions for auth, accounts, and transactions
+- src/routes/ - API routes for authentication, accounts, and transactions
 - src/controllers/ - Business logic for each feature
-- src/models/ - MongoDB schemas
+- src/models/ - MongoDB schemas and data models
 - src/middleware/ - Authentication and request handling middleware
-- src/services/ - External services such as email
+- src/services/ - External services such as email handling
 
 ## Installation
 1. Clone the repository
@@ -70,4 +73,4 @@ EMAIL_PASS=your_email_password
   ```
 
 ## Notes
-This project is designed as a simple banking-style transaction system for learning and demonstration purposes.
+This project is ideal for learning backend development, REST API design, authentication flow, and MongoDB-based transaction handling in a simple banking scenario.
