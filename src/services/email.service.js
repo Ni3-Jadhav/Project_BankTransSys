@@ -1,38 +1,9 @@
-const net = require("net");
-
-const socket = net.createConnection(587, "smtp.gmail.com");
-
-socket.on("connect", () => {
-  console.log("Connected to Gmail SMTP");
-  socket.end();
-});
-
-socket.on("error", (err) => {
-  console.error(err);
-});
-
-socket.setTimeout(10000);
-
-socket.on("timeout", () => {
-  console.log("Timeout");
-  socket.destroy();
-});
-
-
-const dns = require("dns");
-
-dns.setDefaultResultOrder("ipv4first");
-
-dns.lookup("smtp.gmail.com", { all: true }, (err, addresses) => {
-  console.log(addresses);
-});
-
 const nodemailer = require("nodemailer");
 
+/** 
+ * For production google OAuth service not working we are now using Brevo SMTP Service
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  service: "gmail",
   auth: {
     type: "OAuth2",
     user: process.env.EMAIL_USER,
@@ -41,31 +12,39 @@ const transporter = nodemailer.createTransport({
     refreshToken: process.env.REFRESH_TOKEN,
   },
 });
+*/
 
-// Verify the connection configuration
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("Error connecting to email server:", error);
+const transporter = nodemailer.createTransport({
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_SMTP_USER,
+    pass: process.env.BREVO_SMTP_PASS,
+  },
+});
+
+transporter.verify((err) => {
+  if (err) {
+    console.error("SMTP Error:", err);
   } else {
-    console.log("Email server is ready to send messages");
+    console.log("SMTP Connected");
   }
 });
 
-// Function to send email
 const sendEmail = async (to, subject, text, html) => {
   try {
     const info = await transporter.sendMail({
-      from: `"BankTransSys Project" <${process.env.EMAIL_USER}>`, // sender address
-      to, // list of receivers
-      subject, // Subject line
-      text, // plain text body
-      html, // html body
+      from: `"BankTransSys Project" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      text,
+      html,
     });
 
-    console.log("Message sent: %s", info.messageId);
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-  } catch (error) {
-    console.error("Error sending email:", error);
+    console.log("Message sent:", info.messageId);
+  } catch (err) {
+    console.error(err);
   }
 };
 

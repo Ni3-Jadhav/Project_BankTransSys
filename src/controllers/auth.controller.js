@@ -77,7 +77,7 @@ async function userRegisterController(req, res) {
         userCreate.name,
       );
     } catch (error) {
-      console.error("Error in email service", error.message);
+      console.error("Error in Registration email service", error.message);
     }
   } catch (error) {
     console.error(error);
@@ -147,7 +147,7 @@ async function userLoginController(req, res) {
     try {
       await emailService.sendEmailOnLogin(user.email, user.name);
     } catch (error) {
-      console.error("Error in email service", error.message);
+      console.error("Error in Login email service", error.message);
     }
   } catch (error) {
     console.error(error);
@@ -186,7 +186,7 @@ async function userLogoutController(req, res) {
     try {
       await emailService.sendEmailOnLogout(req.user.email, req.user.name);
     } catch (error) {
-      console.error("Error in email service", error.message);
+      console.error("Error in Logout email service", error.message);
     }
   } catch (error) {
     console.error(error);
