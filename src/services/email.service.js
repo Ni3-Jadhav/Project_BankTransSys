@@ -1,3 +1,24 @@
+const net = require("net");
+
+const socket = net.createConnection(587, "smtp.gmail.com");
+
+socket.on("connect", () => {
+  console.log("Connected to Gmail SMTP");
+  socket.end();
+});
+
+socket.on("error", (err) => {
+  console.error(err);
+});
+
+socket.setTimeout(10000);
+
+socket.on("timeout", () => {
+  console.log("Timeout");
+  socket.destroy();
+});
+
+
 const dns = require("dns");
 
 dns.setDefaultResultOrder("ipv4first");
