@@ -1,7 +1,17 @@
+const dns = require("dns");
+
+dns.setDefaultResultOrder("ipv4first");
+
+dns.lookup("smtp.gmail.com", { all: true }, (err, addresses) => {
+  console.log(addresses);
+});
+
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
   auth: {
     type: "OAuth2",
     user: process.env.EMAIL_USER,
