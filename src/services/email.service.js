@@ -1,3 +1,30 @@
+const dns = require("dns");
+const net = require("net");
+
+dns.lookup("smtp-relay.brevo.com", { all: true }, (err, addresses) => {
+    console.log("DNS:", addresses);
+
+    const socket = net.createConnection({
+        host: "smtp-relay.brevo.com",
+        port: 587,
+    });
+
+    socket.on("connect", () => {
+        console.log("CONNECTED");
+        socket.end();
+    });
+
+    socket.on("timeout", () => {
+        console.log("TIMEOUT");
+    });
+
+    socket.on("error", (err) => {
+        console.log(err);
+    });
+
+    socket.setTimeout(10000);
+});
+
 const nodemailer = require("nodemailer");
 
 /** 
